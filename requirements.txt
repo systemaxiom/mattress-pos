@@ -1,0 +1,6 @@
+ttkbootstrap
+python-dotenv
+reportlab
+Pillow
+shopify-python-api
+requests
