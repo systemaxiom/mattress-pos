@@ -147,7 +147,7 @@ class SystemAxiomHub:
     def load_staff(self):
         try:
             with open(self.paths['roster_path'], 'r') as f:
-                # FIX: Save directly to self.roster_data so it passes correctly to other windows!
+              
                 self.roster_data = json.load(f)
             
             self.staff_list = self.roster_data.get('associates', [])
@@ -199,7 +199,7 @@ class SystemAxiomHub:
         self.search_col_val = tb.StringVar(value="customer_name")
         
         try:
-            # We wrap the first UI elements in a try block to catch theme locks
+          
             self.traffic_frame = tb.Frame(self.app, padding=10, bootstyle="dark")
             self.traffic_frame.pack(fill='x', padx=10, pady=5)
             
@@ -223,7 +223,7 @@ class SystemAxiomHub:
             print('test 5.5')
         except Exception as e:
             print(f"⚠️ UI Warning: Theme engine stalled but bypassed. Error: {e}")
-            # If the frame fails, we create a basic backup label so the app doesn't stay blank
+       
             tb.Label(self.app, text="System Axiom Loading...").pack()
         
         
@@ -233,8 +233,7 @@ class SystemAxiomHub:
         self.deposit_entry.pack(side='left', padx=5)
         self.deposit_entry.bind("<KeyRelease>", self.save_deposit_live)
 
-        # Now, instead of manual 'delete' and 'insert' lines here, 
-        # just call this at the very bottom of setup_ui:
+   
         self.load_daily_stats()
         
         self.sidebar = tb.Frame(self.app, bootstyle="light", padding=10)
@@ -245,7 +244,7 @@ class SystemAxiomHub:
         self.rsa_stats_display = tb.Frame(self.sidebar)
         self.rsa_stats_display.pack(fill='both', expand=True)
         
-        # --- BATCH BUTTON HERE ---
+        # --- BATCH BUTTON  ---
         tb.Button(self.sidebar, text="📦 Batch Inventory", bootstyle="warning-outline", 
                   command=self.open_batch_inventory_tool).pack(side='bottom', pady=5)
         
@@ -372,10 +371,10 @@ class SystemAxiomHub:
 
         
         
-        # 1. Define the internal keys clearly
+    
         self.del_cols = ("date", "customer", "items", "status")
         
-        # 2. Initialize the tree with the columns explicitly
+      
         self.del_tree = tb.Treeview(
             self.delivery_tab, 
             bootstyle='info', 
@@ -383,10 +382,10 @@ class SystemAxiomHub:
             show="headings"
         )
 
-        # 3. Lock in the headings and IDs
+   
         for c in self.del_cols:
             self.del_tree.heading(c, text=c.upper())
-            # Set specific widths so they don't collapse to 0
+      
             if c == "date": self.del_tree.column(c, width=120, anchor="center")
             elif c == "status": self.del_tree.column(c, width=100, anchor="center")
             elif c == "customer": self.del_tree.column(c, width=200, anchor="w")
@@ -394,7 +393,7 @@ class SystemAxiomHub:
             
         self.del_tree.pack(fill='both', expand=True, padx=20, pady=10)
         
-        # Cyborg Tags (Neon text, no background puke)
+   
         self.del_tree.tag_configure('delivered', foreground='#00ff7f')
         self.del_tree.tag_configure('pending', foreground='#00d1ff')
         self.del_tree.tag_configure('incomplete', foreground='#ff4444')
@@ -407,7 +406,7 @@ class SystemAxiomHub:
         self.tabs.add(self.followup_tab, text="Follow-Ups")
         
         cols_follow = ("name", "phone", "visit_date")
-        # Ensure this is on followup_tab and named follow_tree
+  
         self.follow_tree = tb.Treeview(self.followup_tab, bootstyle='info', columns=cols_follow, show="headings")
 
         for c in cols_follow:
@@ -422,7 +421,7 @@ class SystemAxiomHub:
         tb.Button(self.followup_tab, text="Check for Today's Reminders", 
                   bootstyle="info-outline", command=self.load_reminders).pack(pady=10)
         
-        # Bind the right-click to the follow_tree
+      
         self.follow_tree.bind("<Button-3>", self.show_reminder_details)
         
         # CONTEXT MENU
@@ -461,7 +460,7 @@ class SystemAxiomHub:
                     data = json.load(f)
             except: pass
         
-        # Example key: '2026-03-04' (traffic) or '2026-03-04_deposit'
+      
         full_key = f"{today_str}{key_suffix}"
         data[full_key] = value
         
@@ -472,7 +471,7 @@ class SystemAxiomHub:
     def save_deposit_live(self, event=None):
         """Saves the deposit amount as you type."""
         val = self.deposit_entry.get()
-        # One line. No 'with open', no 'json.dump' here.
+    
         self.update_daily_json("_deposit", val)
 
     
@@ -525,10 +524,10 @@ class SystemAxiomHub:
         
         self.follow_tree.delete(*self.follow_tree.get_children())
         
-        # Calculate exactly 15 days ago
+      
         target_date = (datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d')
         
-        # 1. Using the strict Data Helper rules!
+   
         results = self.db.select_data(
             table_name='customers', 
             columns='first_name, last_name, phone, last_visit_date',
@@ -539,12 +538,12 @@ class SystemAxiomHub:
         if results:
             for row in results:
                 try:
-                    # 2. Unpack the tuple safely using index numbers
+                 
                     name = f"{row[0]} {row[1]}"
                     phone = row[2] or "No Phone"
                     date = row[3]
                     
-                    # 3. Insert into Tkinter (This will work perfectly now!)
+              
                     self.follow_tree.insert('', 'end', values=(name, phone, date))
                     
                 except Exception as e:
@@ -556,13 +555,13 @@ class SystemAxiomHub:
         vals = self.follow_tree.item(item)['values']
         full_name = vals[0]
         
-        # Split Name
+  
         parts = full_name.split(" ", 1)
         first = parts[0]
         last = parts[1] if len(parts) > 1 else ""
 
         try:
-            # 1. Ask the Data Helper for the notes AND the full address
+       
             results = self.db.select_data(
                 table_name="customers",
                 columns="highlights, street, city, state, zip_code",
@@ -571,10 +570,10 @@ class SystemAxiomHub:
             )
             
             if results:
-                # 2. Grab the first match (it comes back as a Tuple)
+              
                 customer = results[0] 
                 
-                # 3. Unpack the tuple safely 
+            
                 notes = customer[0] or "No previous highlights."
                 street = customer[1] or ""
                 city = customer[2] or ""
@@ -583,7 +582,7 @@ class SystemAxiomHub:
                 
                 address = f"{street}, {city} {state} {zip_code}".strip()
                 
-                # 4. Display the popup!
+           
                 messagebox.showinfo(
                     "Handwritten Card Info", 
                     f"Customer: {full_name}\nAddress: {address}\n--------------------------\nHIGHLIGHTS: {notes}"
@@ -619,7 +618,7 @@ class SystemAxiomHub:
                 messagebox.showwarning("Missing Info", "First Name is required!")
                 return
             
-            # RULE 1: Inserts use Dictionaries! (No need to pass 'id' or 'highlights')
+          
             customer_payload = {
                 "first_name": f_name,
                 "last_name": l_name,
@@ -678,7 +677,7 @@ class SystemAxiomHub:
         if not self.cust_dropdown.curselection(): return
         full_text = self.cust_dropdown.get(self.cust_dropdown.curselection())
         
-        # Parse "First Last | Phone" (Using the pipe split you correctly identified!)
+     
         name_part = full_text.split(" | ")[0].strip()
         self.main_cust_search.delete(0, 'end')
         self.main_cust_search.insert(0, name_part)
@@ -690,7 +689,7 @@ class SystemAxiomHub:
             first = parts[0]
             last = parts[1] if len(parts) > 1 else ""
         
-            # RULE 2: Goodbye raw cursors, hello Data Helper
+    
             results = self.db.select_data(
                 table_name='customers',
                 columns='highlights',
@@ -698,7 +697,7 @@ class SystemAxiomHub:
                 where_args=(first, last)
             )
             
-            # results is a list of tuples, so results[0][0] gets the actual text string
+        
             if results and results[0][0]:
                 self.history_label.config(text=f"Last Note: {results[0][0]}") 
             else:
@@ -714,11 +713,11 @@ class SystemAxiomHub:
             return
             
         index = selection[0]
-        # I added the .split('-')[0] here just in case your dropdown has phone numbers attached!
+     
         selected_name = self.cust_dropdown.get(index).split('|')[0].strip() 
         
         try:
-            # We explicitly ask for the exact columns we want so the Tuple order is guaranteed
+         
             results = self.db.select_data(
                 table_name='customers',
                 columns="first_name, last_name, phone, email, last_visit_date, street, city, state, zip_code",
@@ -727,9 +726,9 @@ class SystemAxiomHub:
             )
             
             if results:
-                customer = results[0] # This is a Tuple now!
+                customer = results[0] 
                 
-                # Unpack the tuple safely using the exact order we requested above
+              
                 c_fname = customer[0]
                 c_lname = customer[1]
                 c_phone = customer[2] or "No Phone"
@@ -740,13 +739,13 @@ class SystemAxiomHub:
                 c_state = customer[7] or ""
                 c_zip = customer[8] or ""
                 
-                # Format Address cleanly without floating commas
+
                 if c_city or c_state or c_zip:
                     address = f"{c_street}\n{c_city}, {c_state} {c_zip}".strip()
                 else:
                     address = c_street
                 
-                # Build the final text popup
+         
                 info_text = (
                     f"Name: {c_fname} {c_lname}\n"
                     f"Phone: {c_phone}\n"
@@ -765,7 +764,7 @@ class SystemAxiomHub:
 
     def launch_closer_suite(self):
         from closer import CloserSuite
-        # Make sure roster_data is initialized or it will throw that error again!
+        
         CloserSuite(
             parent=self.app,
             cart=self.cart,
@@ -779,7 +778,7 @@ class SystemAxiomHub:
         """The cleaned-up, mandatory-date version of load_deliveries."""
         self.del_tree.delete(*self.del_tree.get_children())
         
-        # We use simple SELECT to make sure we see everything first
+       
         query = "SELECT id, delivery_date, customer_name, item, status FROM sales"
         
         try:
@@ -789,7 +788,7 @@ class SystemAxiomHub:
                     db_id = r[0]
                     d_date = str(r[1]) if r[1] else "No Date"
                     
-                    # FIX: Handle the missing name specifically
+           
                     raw_name = r[2]
                     if not raw_name or str(raw_name).strip() == "":
                         c_name = "UNKNOWN CUSTOMER"
@@ -823,14 +822,14 @@ class SystemAxiomHub:
     def on_search_change(self, *args):
         """Filters deliveries based on the selected column and search text."""
         search_text = self.del_search_val.get().strip().lower()
-        search_column = self.search_col_val.get() # 'customer_name', 'item', or 'delivery_date'
+        search_column = self.search_col_val.get() 
         
         self.del_tree.delete(*self.del_tree.get_children())
 
-        # Security Guard: Use '?' for the search value
+  
         wildcard = f"%{search_text}%"
         
-        # We use f-string for the column name and '?' for the value
+      
         query = f"""
             SELECT id, delivery_date, customer_name, item, status 
             FROM sales 
@@ -881,11 +880,9 @@ class SystemAxiomHub:
             new_status = "Pending"
         
         try:
-            # 4. Update the 'sales' table using your manual query helper
+       
             update_sql = "UPDATE sales SET status = ? WHERE id = ?"
             self.db.execute_manual_query(update_sql, (new_status, item_id))
-            
-            # 5. Refresh the UI to show the new color and text
             print(f"🔄 Ticket {item_id} changed to {new_status}")
             self.load_deliveries()
             
@@ -915,8 +912,6 @@ class SystemAxiomHub:
             
             if view_mode == "ORDERS":
                 where_str += " AND count < 0"
-            # If it's not orders, we just use the search params without the 'count < 0' filter
-            
             rows = self.db.select_data(
                 table_name='inventory', 
                 where_clause=where_str, 
@@ -967,7 +962,7 @@ class SystemAxiomHub:
                 for r in rows:
                     self.inventory_objects.append(InventoryObject(*r))
             
-            # CRITICAL: This must be active to show your 17,500 overhead!
+         
             self.update_performance_sidebar() 
             
         except Exception as e:
@@ -999,7 +994,7 @@ class SystemAxiomHub:
             messagebox.showerror("Error", "Could not identify selected item.")
             return
 
-        # 2. Just push it to the list (No popup yet!)
+     
         self.cart.append({
             "vendor": item.vendor,
             "name": item.name,
@@ -1010,7 +1005,7 @@ class SystemAxiomHub:
             "attribute": item.attribute,
         })
         
-        # 3. Refresh your sidebar/preview
+  
         self.refresh_cart_display()
         print(f"Staged: {item.name}")
 
@@ -1031,7 +1026,7 @@ class SystemAxiomHub:
         self.cart_listbox.delete(0, 'end')
         total = 0
         for item in self.cart:
-            # FIXED: All brackets because we are in the cart!
+         
             self.cart_listbox.insert('end', f"{item['size']} {item['name']} - ${item['price']:,.2f}")
             total += item['price']
         self.subtotal_var.set(f"Subtotal: ${total:,.2f}")
@@ -1060,7 +1055,7 @@ class SystemAxiomHub:
 
         # 4. Add Pin for Manager Overide 
         if confirm:
-            if not self.check_manager_override(): # Fixed spelling!
+            if not self.check_manager_override(): 
                 return
             
             
@@ -1168,7 +1163,7 @@ class SystemAxiomHub:
         return needs, made
 
     def update_performance_sidebar(self):
-        # 1. Clear current RSA list widgets
+
         for widget in self.rsa_stats_display.winfo_children():
             widget.destroy()
 
@@ -1176,7 +1171,7 @@ class SystemAxiomHub:
             now = datetime.now()
             month_str = now.strftime("%Y-%m")
             
-            # 2. Get a list of everyone who has actually made a sale this month
+        
             query = f"SELECT DISTINCT salesman FROM sales WHERE date LIKE '{month_str}%'"
             active_reps = self.db.execute_manual_query(query)
             
@@ -1184,7 +1179,7 @@ class SystemAxiomHub:
                 tb.Label(self.rsa_stats_display, text="No sales recorded yet.", font=("Helvetica", 9, "italic")).pack(pady=10)
                 return
 
-            # 3. Loop through ONLY the people who have contributed
+          
             for row in active_reps:
                 rsa_name = row[0]
                 if not rsa_name: continue
