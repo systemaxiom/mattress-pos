@@ -145,8 +145,6 @@ class Data_Helper:
                 
            
             column_names = [col[0] for col in self.cursor.description]
-            
-            # THE FIX: Zip the headers and the raw tuple data together into dictionaries
             dict_results = [dict(zip(column_names, row)) for row in rows]
             
             return dict_results
@@ -169,7 +167,7 @@ class Data_Helper:
                 sql = f"INSERT INTO {table_name} ({cols}) VALUES ({placeholders})"
                 self.cursor.execute(sql, values)
             else:
-                # Fallback for old tuple formats
+              
                 placeholders = ",".join(["?"] * len(data))
                 sql = f"INSERT INTO {table_name} VALUES ({placeholders})"
                 self.cursor.execute(sql, data)
@@ -192,7 +190,7 @@ class Data_Helper:
                 set_clause = ", ".join([f"{col} = ?" for col in data.keys()])
                 all_values = list(data.values()) + list(where_args)
             else:
-                # If you pass a raw string like "price = 500"
+              
                 set_clause = data
                 all_values = list(where_args)
 
