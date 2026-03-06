@@ -43,8 +43,7 @@ class Data_Helper:
             # 1. Select the database context
             self.conn.execute(f"USE DATABASE {DB_NAME}")
             
-            # 2. IMPORTANT: SQLite Cloud usually handles the dictionary conversion 
-            # at the connection level or via a specific cursor setting.
+           
             self.cursor = self.conn.cursor()
             
             print(f"DEBUG: Attempting to connect to DB at: {CONNECTION_STRING}")
@@ -131,11 +130,8 @@ class Data_Helper:
     
 
     def select_data(self, table_name, columns="*", where_clause=None, where_args=()):
-        """
-        Universal Select.
-        Forces the output to be a list of dictionaries, fixing the tuple index error.
-        """
-        try:
+        
+       try:
             sql = f"SELECT {columns} FROM {table_name}"
             if where_clause:
                 sql += f" WHERE {where_clause}"
@@ -147,7 +143,7 @@ class Data_Helper:
             if not rows:
                 return []
                 
-            # THE FIX: Grab the column headers straight from the database schema
+           
             column_names = [col[0] for col in self.cursor.description]
             
             # THE FIX: Zip the headers and the raw tuple data together into dictionaries
